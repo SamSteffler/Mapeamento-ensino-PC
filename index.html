@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Horário Semanal - PET-CC</title>
+  <style>
+    :root { 
+      --highlight: #ffd54f;
+      --primary: #1976d2;
+      --primary-dark: #1565c0;
+      --border-color: #e0e0e0;
+      --header-bg: #f5f7fa;
+      --time-bg: #fafbfc;
+      --shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
+    
+    .embed { 
+      max-width: 100%;
+      max-height: 100%;
+      margin: 0;
+      padding: 2rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+    
+    .layout {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    
+    .left-panel {
+      position: sticky;
+      top: 2rem;
+    }
+    
+    .right-panel {
+      min-width: 0;
+    }
+    
+    h2 {
+      margin: 0 0 1rem 0;
+      color: #1a1a1a;
+      font-size: 1.75rem;
+      font-weight: 700;
+      padding-bottom: 0.75rem;
+      border-bottom: 3px solid var(--primary);
+    }
+    
+    .description {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: var(--header-bg);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #555;
+    }
+    
+    .controls { 
+      margin-bottom: 1.5rem;
+      padding: 1.25rem;
+      background: var(--header-bg);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+    
+    .controls label { 
+      display: block;
+      font-weight: 600;
+      color: #444;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .controls select { 
+      width: 100%;
+      padding: 0.6rem 1rem;
+      font-size: 0.95rem;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 0.75rem;
+    }
+    
+    .controls select:hover {
+      border-color: var(--primary);
+    }
+    
+    .controls select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+    }
+    
+    .controls button { 
+      width: 100%;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid var(--primary);
+      border-radius: 6px;
+      background: var(--primary);
+      color: white;
+      transition: all 0.2s;
+    }
+    
+    .controls button:hover { 
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+    }
+    
+    .controls button:active {
+      transform: translateY(0);
+    }
+    
+    .contact-info {
+      margin-bottom: 1.5rem;
+      padding: 1rem 1.25rem;
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+    
+    .contact-info.visible {
+      display: block;
+    }
+    
+    .contact-info h3 {
+      margin: 0 0 0.5rem 0;
+      color: var(--primary-dark);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    
+    .contact-info p {
+      margin: 0.25rem 0;
+      color: #444;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    
+    .contact-info strong {
+      color: #2d3748;
+      font-weight: 600;
+    }
+    
+    .contact-info a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    
+    .contact-info a:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    table { 
+      border-collapse: collapse;
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    
+    th, td { 
+      border: 1px solid var(--border-color);
+      padding: 0.875rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    
+    th { 
+      background: linear-gradient(180deg, #4a5568 0%, #2d3748 100%);
+      color: white;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 1rem 0.875rem;
+    }
+    
+    th:first-child {
+      border-top-left-radius: 8px;
+    }
+    
+    th:last-child {
+      border-top-right-radius: 8px;
+    }
+    
+    td:first-child { 
+      background: var(--time-bg);
+      font-weight: 600;
+      width: 160px;
+      color: #2d3748;
+      border-right: 2px solid var(--border-color);
+    }
+    
+    tbody tr:nth-child(even) td:not(:first-child) {
+      background: #fafafa;
+    }
+    
+    tbody tr:hover td {
+      background: #f0f4f8;
+    }
+    
+    tbody tr:hover td:first-child {
+      background: var(--time-bg);
+    }
+    
+    td {
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+    
+    .highlight { 
+      background: var(--highlight) !important;
+      font-weight: 500;
+      box-shadow: inset 0 0 0 2px #ffa000;
+      transition: all 0.3s ease;
+    }
+    
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      
+      .left-panel {
+        position: static;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem 0.5rem;
+      }
+      
+      .embed {
+        padding: 1rem;
+        border-radius: 8px;
+      }
+      
+      h2 {
+        font-size: 1.5rem;
+      }
+      
+      table {
+        font-size: 0.85rem;
+      }
+      
+      th, td {
+        padding: 0.5rem;
+      }
+      
+      td:first-child {
+        width: 100px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="embed">
+    <div class="layout">
+      <div class="left-panel">
+        <h2>Horário Semanal disponível para o ensino do Pensamento Computacional</h2>
+        <div class="description">
+          <p>Tabela de horários gerada por meio da pesquisa intitulada "Mapeamento do ensino do Pensamento Computacional nas escolas públicas de Santa Maria", realizada pelo integrante do PET-CC da UFSM Samuel Steffler e o professor orientador Giovani Rubert Librelotto.</p>
+        </div>
+        
+        <div class="controls">
+          <label for="schoolSelect">Selecione a escola para destacar:</label>
+          <select id="schoolSelect">
+            <option value="">— Selecione —</option>
+          </select>
+          <button id="clearBtn" type="button">Limpar</button>
+        </div>
+        
+        <div id="contactInfo" class="contact-info">
+          <h3 id="schoolName"></h3>
+          <p id="schoolContact"></p>
+        </div>
+      </div>
+      
+      <div class="right-panel">
+        <table id="scheduleTable" aria-label="Tabela de horário">
+        <thead>
+          <tr>
+            <th>Horário</th>
+            <th>Segunda-feira</th>
+            <th>Terça-feira</th>
+            <th>Quarta-feira</th>
+            <th>Quinta-feira</th>
+            <th>Sexta-feira</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Início da manhã</strong></td>
+            <td>EMEF Dom Luiz Victor Sartori, EMEF Francisca Weinmann, EMEF Ione Medianeira Parcianello, EMEF Irmão Quintino, EMEF Maria de Lourdes Ramos Castro , EMEF Miguel Beltrame, EMEF Padre Gabriel Bolzan</td>
+            <td>EMEF Irmão Quintino, EMEF Maria de Lourdes Ramos Castro , EMEF Padre Gabriel Bolzan, EMEF Rejane Garcia Gervini, EMEF São Carlos, EMEF Santa Helena </td>
+            <td>EMEF Aracy Barreto Sacchis, EMEF Ione Medianeira Parcianello, EMEF Maria de Lourdes Ramos Castro , EMEF Padre Gabriel Bolzan, EMEF Rejane Garcia Gervini, EMEF São Carlos</td>
+            <td>EMEF Aracy Barreto Sacchis, EMEF Francisca Weinmann, EMEF Irmão Quintino, EMEF Maria de Lourdes Ramos Castro , EMEF Padre Gabriel Bolzan, EMEF Prof. Maria de Lourdes Bandeira Medina, EMEF Reverendo Alfredo Winderlich</td>
+            <td>EMEF Dom Luiz Victor Sartori, EMEF Aracy Barreto Sacchis, EMEF Francisca Weinmann, EMEF Irmão Quintino, EMEF Rejane Garcia Gervini, EMEF Reverendo Alfredo Winderlich</td>
+          </tr>
+          <tr>
+            <td><strong>Fim da manhã</strong></td>
+            <td>EMEF Dom Luiz Victor Sartori, EMEF Maria de Lourdes Ramos Castro , EMEF Padre Gabriel Bolzan</td>
+            <td>EMEF Maria de Lourdes Ramos Castro , EMEF Padre Gabriel Bolzan, EMEF Reverendo Alfredo Winderlich , EMEF São Carlos, EMEF Santa Helena</td>
+            <td>EMEF Aracy Barreto Sacchis, EMEF Aracy Barreto Sacchis, EMEF Maria de Lourdes Ramos Castro , EMEF Padre Gabriel Bolzan, EMEF Prof. Maria de Lourdes Bandeira Medina, EMEF Rejane Garcia Gervini, EMEF São Carlos</td>
+            <td>EMEF Aracy Barreto Sacchis, EMEF Francisca Weinmann, EMEF Maria de Lourdes Ramos Castro , EMEF Padre Gabriel Bolzan, EMEF Reverendo Alfredo Winderlich</td>
+            <td>EMEF Dom Luiz Victor Sartori, EMEF Aracy Barreto Sacchis, EMEF Francisca Weinmann, EMEF João Hundertmark, EMEF Rejane Garcia Gervini, EMEF Reverendo Alfredo Winderlich</td>
+          </tr>
+          <tr>
+            <td><strong>Início da tarde</strong></td>
+            <td>EMEF Dom Luiz Victor Sartori, EMEF Aracy Barreto Sacchis, EMEF Francisca Weinmann, EMEF Ione Medianeira Parcianello, EMEF Irmão Quintino, EMEF Prof Hylda Vasconcellos</td>
+            <td>EMEF Irmão Quintino, EMEF Prof Hylda Vasconcellos, EMEF Santa Helena</td>
+            <td>EMEF Aracy Barreto Sacchis, EMEF Ione Medianeira Parcianello, EMEF Irmão Quintino, EMEF Pedro Kunz, EMEF Prof Hylda Vasconcellos, EMEF Prof. Maria de Lourdes Bandeira Medina</td>
+            <td>EMEF Francisca Weinmann, EMEF Irmão Quintino, EMEF João Hundertmark, EMEF Lidovino Fanton, EMEF Prof Hylda Vasconcellos, EMEF Prof. Maria de Lourdes Bandeira Medina</td>
+            <td>EMEF Dom Luiz Victor Sartori, EMEF Francisca Weinmann, EMEF Irmão Quintino, EMEF Lidovino Fanton, EMEF Pedro Kunz, EMEF Prof Hylda Vasconcellos, EMEF Prof. Maria de Lourdes Bandeira Medina, EMEF Santa Helena</td>
+          </tr>
+          <tr>
+            <td><strong>Fim da tarde</strong></td>
+            <td>EMEF Dom Luiz Victor Sartori, EMEF Aracy Barreto Sacchis, EMEF João Hundertmark, EMEF Prof Hylda Vasconcellos</td>
+            <td>EMEF Prof Hylda Vasconcellos, EMEF Santa Helena</td>
+            <td>EMEF Irmão Quintino, EMEF Prof Hylda Vasconcellos</td>
+            <td>EMEF Francisca Weinmann, EMEF Irmão Quintino, EMEF João Hundertmark, EMEF Lidovino Fanton, EMEF Prof Hylda Vasconcellos, EMEF Prof. Maria de Lourdes Bandeira Medina</td>
+            <td>EMEF Dom Luiz Victor Sartori, EMEF Francisca Weinmann, EMEF Irmão Quintino, EMEF João Hundertmark, EMEF Lidovino Fanton, EMEF Prof Hylda Vasconcellos, EMEF Prof. Maria de Lourdes Bandeira Medina</td>
+          </tr>
+        </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const table = document.getElementById('scheduleTable');
+        const select = document.getElementById('schoolSelect');
+        const clearBtn = document.getElementById('clearBtn');
+        const contactInfo = document.getElementById('contactInfo');
+        const schoolName = document.getElementById('schoolName');
+        const schoolContact = document.getElementById('schoolContact');
+        
+        // School contact data
+        const schoolContacts = {
+          'EMEF Aracy Barreto Sacchis': 'emefaracybarretosacchis@edu.santamaria.rs.gov.br ou (55) 3217-7844',
+          'EMEF Dom Luiz Victor Sartori': 'emefdomluizvictorsartori@edu.santamaria.rs.gov.br',
+          'EMEF Francisca Weinmann': 'emeffranciscaweinmann@edu.rs.gov.br',
+          'EMEF Ione Medianeira Parcianello': 'emefioneparcianello@edu.santamaria.rs.gov.br',
+          'EMEF Irmão Quintino': 'emefirmaoquintino@edu.santamaria.rs.gov.br',
+          'EMEF João Hundertmark': 'emefjoaohundertmark@edu.santamaria.rs.gov.br ou (55) 99912-11386',
+          'EMEF Lidovino Fanton': 'emeflidovinofanton@edu.santamaria.rs.gov.br',
+          'EMEF Maria de Lourdes Ramos Castro': 'emefmariadelourdescastro@edu.santamaria.rs.gov.br',
+          'EMEF Miguel Beltrame': 'emefmiguelbeltrame@edu.santamaria.rs.gov.br ou (55) 3226-2277',
+          'EMEF Padre Gabriel Bolzan': 'emefpadregabrielbolzan@edu.santamaria.rs.gov.br ou (55) 99954-6014',
+          'EMEF Pedro Kunz': 'emefpedrokunz@edu.santamaria.rs.gov.br ou (55) 99161-3930',
+          'EMEF Prof Hylda Vasconcellos': 'emefhyldavasconcellos@edu.santamaria.rs.gov.br',
+          'EMEF Prof. Maria de Lourdes Bandeira Medina': 'emefmariadelourdesbandeiramedina@edu.santamaria.rs.gov.br ou (55) 3225-5000',
+          'EMEF Rejane Garcia Gervini': 'emefrejanegarciagervini@edu.santamaria.rs.gov.br',
+          'EMEF Reverendo Alfredo Winderlich': 'emefalfredowinderlich@edu.santamaria.rs.gov.br',
+          'EMEF São Carlos': 'emefsaocarlos@edu.santamaria.rs.gov.br ou (55) 3211-3999',
+          'EMEF Santa Helena': 'emefsantahelena@edu.santamaria.rs.gov.br ou (55) 99718-3341'
+        };
+
+        // collect unique school names from tbody cells (excluding first column which is time labels)
+        const schools = new Set();
+        table.querySelectorAll('tbody td:not(:first-child)').forEach(td => {
+          const text = td.textContent.trim();
+          if (text) {
+            // split by comma and trim each school name
+            text.split(',').forEach(name => {
+              const trimmed = name.trim();
+              if (trimmed) schools.add(trimmed);
+            });
+          }
+        });
+
+        // populate select with sorted school names
+        Array.from(schools).sort().forEach(school => {
+          const opt = document.createElement('option');
+          opt.value = school;
+          opt.textContent = school;
+          select.appendChild(opt);
+        });
+
+        function clearHighlights() {
+          table.querySelectorAll('td.highlight').forEach(td => td.classList.remove('highlight'));
+        }
+        
+        function showContactInfo(schoolNameText) {
+          if (!schoolNameText || !schoolContacts[schoolNameText]) {
+            contactInfo.classList.remove('visible');
+            return;
+          }
+          
+          schoolName.textContent = schoolNameText;
+          const contact = schoolContacts[schoolNameText];
+          
+          // Parse email and phone from contact string
+          const parts = contact.split(' ou ');
+          const email = parts[0];
+          const phone = parts[1] || '';
+          
+          let contactHTML = '<strong>E-mail:</strong> <a href="mailto:' + email + '">' + email + '</a>';
+          if (phone) {
+            contactHTML += ' | <strong>Telefone:</strong> ' + phone;
+          }
+          
+          schoolContact.innerHTML = contactHTML;
+          contactInfo.classList.add('visible');
+        }
+
+        function highlightSchool(schoolName) {
+          clearHighlights();
+          if (!schoolName) return;
+          
+          table.querySelectorAll('tbody td:not(:first-child)').forEach(td => {
+            const text = td.textContent.trim();
+            // check if the cell contains the selected school name
+            const schools = text.split(',').map(s => s.trim());
+            if (schools.includes(schoolName)) {
+              td.classList.add('highlight');
+            }
+          });
+        }
+
+        select.addEventListener('change', function () {
+          highlightSchool(this.value);
+          showContactInfo(this.value);
+        });
+
+        clearBtn.addEventListener('click', function () {
+          select.value = '';
+          clearHighlights();
+          contactInfo.classList.remove('visible');
+        });
+      });
+    </script>
+</body>
+</html>
